@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segmentation Inference</title>
+</head>
+<body>
+    <h1>Segmentation Inference</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="fileInput" accept=".nii.gz" required>
+        <button type="button" onclick="uploadFile()">Submit</button>
+    </form>
+    <div id="result" style="display: none;">
+        <h2>Result:</h2>
+        <a id="downloadLink" href="#" download>Download Segmented File</a>
+    </div>
+    <script>
+        async function uploadFile() {
+            let fileInput = document.getElementById("fileInput");
+            let file = fileInput.files[0];
+            if (!file) {
+                alert("Please select a file.");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                let response = await fetch("/segment", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                let result = await response.json();
+                if (result.segmented_file_path) {
+                    let downloadLink = document.getElementById("downloadLink");
+                    downloadLink.href = result.segmented_file_path;
+                    downloadLink.style.display = "block";
+                    document.getElementById("result").style.display = "block";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred. Please try again.");
+            }
+        }
+    </script>
+</body>
+</html>
