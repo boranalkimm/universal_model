@@ -14,9 +14,12 @@ def segment_nii():
     # Check if the POST request has the file part
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'})
+    if 'organ_name' not in request.form:
+        return jsonify({'error': 'Organ name not specified'})
 
     # Get the uploaded file
     file = request.files['file']
+    organ_name = request.form['organ_name']
 
     # If the user does not select a file, the browser submits an empty file without a filename
     if file.filename == '':
@@ -56,7 +59,8 @@ def segment_nii():
         return jsonify({
             'segmented_nii_gz_url': segmented_nii_gz_url,
             'segmented_png_url': segmented_png_url,
-            'original_png_url': original_png_url
+            'original_png_url': original_png_url,
+            'organ_name': organ_name
         })
 
 if __name__ == '__main__':
